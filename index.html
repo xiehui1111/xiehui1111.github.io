@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<!-- saved from url=(0135)file:///C:/Users/Administrator/Desktop/%E8%97%8F%E6%88%8F%E9%9D%A2%E5%85%B7/%E8%97%8F%E6%88%8F%E9%9D%A2%E5%85%B7%E5%9B%BE%E9%89%B4.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>藏戏面具图鉴</title>
+  <style>
+    /* 干净简洁，无多余装饰，无emoji */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f5f3f0;  /* 柔和底色，不喧宾夺主 */
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* 主图鉴容器 */
+    .gallery {
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    /* 页面名——极简，只作为信息层级存在 */
+    .page-title {
+      font-size: 2.2rem;
+      font-weight: 350;
+      letter-spacing: 2px;
+      color: #2e241e;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      padding-bottom: 0.5rem;
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    /* 卡牌网格：七张卡，用自适应网格 */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1.8rem;
+      justify-items: center;
+      margin: 0 auto;
+    }
+
+    /* 卡牌样式——干净，无多余角标 */
+    .mask-card {
+      background: white;
+      width: 100%;
+      max-width: 200px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      border: 1px solid #eae6e0;
+    }
+
+    .mask-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 卡牌内图片区域：保持方形，背景浅色 */
+    .card-img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background-color: #d9d2c5;  /* 占位底色，图片加载前可见 */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: #5b4f44;
+    }
+
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* 卡牌名称 —— 极简文字 */
+    .card-label {
+      padding: 0.9rem 0.5rem 1rem 0.5rem;
+      text-align: center;
+      font-weight: 400;
+      color: #2c2c2c;
+      border-top: 1px solid #f0ebe4;
+      letter-spacing: 0.5px;
+      font-size: 1.1rem;
+    }
+
+    /* -------------------- 弹出层 (小页面) ------------------- */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      display: none;          /* 默认隐藏 */
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1.5rem;
+    }
+
+    /* 弹窗卡片——左图右文 */
+    .detail-panel {
+      background: #ffffff;
+      max-width: 950px;
+      width: 100%;
+      max-height: 85vh;
+      border-radius: 28px;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      animation: fadeIn 0.2s ease;
+      border: 1px solid #e2d9cf;
+    }
+
+    /* 左侧放大图片区域 */
+    .detail-left {
+      flex: 1 1 50%;
+      background: #bcb0a0;  /* 中性底 */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .detail-left img {
+      width: 100%;
+      height: auto;
+      max-height: 65vh;
+      object-fit: contain;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* 右侧信息 */
+    .detail-right {
+      flex: 1 1 50%;
+      padding: 2.2rem 2rem;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .mask-name {
+      font-size: 2rem;
+      font-weight: 350;
+      color: #1f1b16;
+      margin-bottom: 1.2rem;
+      border-bottom: 1px solid #e2d9cf;
+      padding-bottom: 0.5rem;
+    }
+
+    .mask-desc {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      color: #2e2a24;
+      margin-bottom: 2rem;
+      white-space: pre-line;   /* 保留换行 */
+    }
+
+    /* 关闭按钮——小而简洁 */
+    .close-btn {
+      align-self: flex-start;
+      background: none;
+      border: 1px solid #cbc3b8;
+      color: #4f463d;
+      font-size: 1.2rem;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.15s;
+      margin-top: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+
+    .close-btn:hover {
+      background: #e2d9cf;
+      border-color: #9e8f7e;
+    }
+
+    /* 辅助无备注 */
+    .no-note {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* 小响应优化：手机改为上下布局 */
+    @media (max-width: 650px) {
+      .detail-panel {
+        flex-direction: column;
+        border-radius: 20px;
+      }
+      .detail-left {
+        padding: 1rem;
+      }
+      .detail-left img {
+        max-height: 40vh;
+      }
+      .detail-right {
+        padding: 1.5rem;
+      }
+      .mask-name {
+        font-size: 1.6rem;
+      }
+    }
+
+    /* 无额外标记，没有任何可见备注 */
+  </style>
+</head>
+<body>
+<div class="gallery">
+  <div class="page-title">藏戏面具图鉴</div>
+
+  <!-- 7张卡牌网格，图片采用简单命名，对应mask1.jpg – mask7.jpg，见下方说明 -->
+  <div class="card-grid" id="cardGrid">
+    <!-- 蓝面具 -->
+    <div class="mask-card" data-index="0">
+      <div class="card-img"><img src="images/blue.png" alt="蓝面具" loading="lazy"></div>
+      <div class="card-label">蓝面具</div>
+    </div>
+    <!-- 绿面具 -->
+    <div class="mask-card" data-index="1">
+      <div class="card-img"><img src="images/green.png" alt="绿面具" loading="lazy"></div>
+      <div class="card-label">绿面具</div>
+    </div>
+    <!-- 红面具 -->
+    <div class="mask-card" data-index="2">
+      <div class="card-img"><img src="images/red.png" alt="红面具" loading="lazy"></div>
+      <div class="card-label">红面具</div>
+    </div>
+    <!-- 白面具 -->
+    <div class="mask-card" data-index="3">
+      <div class="card-img"><img src="images/white.png" alt="白面具" loading="lazy"></div>
+      <div class="card-label">白面具</div>
+    </div>
+    <!-- 黄面具 -->
+    <div class="mask-card" data-index="4">
+      <div class="card-img"><img src="images/yellow.png" alt="黄面具" loading="lazy"></div>
+      <div class="card-label">黄面具</div>
+    </div>
+    <!-- 黑白面具 -->
+    <div class="mask-card" data-index="5">
+      <div class="card-img"><img src="images/black-white.png" alt="黑白面具" loading="lazy"></div>
+      <div class="card-label">黑白面具</div>
+    </div>
+    <!-- 黑面具 -->
+    <div class="mask-card" data-index="6">
+      <div class="card-img"><img src="images/black.png" alt="黑面具" loading="lazy"></div>
+      <div class="card-label">黑面具</div>
+    </div>
+  </div>
+</div>
+
+<!-- 弹出小页面（覆盖层） -->
+<div class="overlay" id="detailOverlay">
+  <div class="detail-panel" id="detailPanel">
+    <!-- 左侧大图 -->
+    <div class="detail-left" id="detailImageContainer">
+      <img id="detailImage" src="file:///C:/Users/Administrator/Desktop/%E8%97%8F%E6%88%8F%E9%9D%A2%E5%85%B7/%E8%97%8F%E6%88%8F%E9%9D%A2%E5%85%B7%E5%9B%BE%E9%89%B4.html" alt="面具放大">
+    </div>
+    <!-- 右侧信息 -->
+    <div class="detail-right">
+      <div class="mask-name" id="detailName"></div>
+      <div class="mask-desc" id="detailDesc"></div>
+      <button class="close-btn" id="closeOverlayBtn">收起</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // 面具详细数据 (与图片对应，顺序必须和卡牌一致)
+    const masksData = [
+      {
+        name: "蓝面具",
+        desc: "蓝色面具表示正义、勇敢，为勇士相。",
+        imageFile: "blue.png"
+      },
+      {
+        name: "绿面具",
+        desc: "绿色面具象征贤良智慧；美貌端庄，属于度母或空行女化身的女子。",
+        imageFile: "green.png"
+      },
+      {
+        name: "红面具",
+        desc: "红色面具象征权利、威严、正义，表示足智多谋、智勇双全。凡扮演国王、大臣者均戴红色面具。",
+        imageFile: "red.png"
+      },
+      {
+        name: "白面具",
+        desc: "白色面具表示人物性格纯洁、善良、温和，无害人之心，意味老者长寿，少者知理。",
+        imageFile: "white.png"
+      },
+      {
+        name: "黄面具",
+        desc: "黄色面具表示容光焕发、功德广大、知识渊博，系活佛、仙翁所戴。",
+        imageFile: "yellow.png"
+      },
+      {
+        name: "黑白面具",
+        desc: "半白半黑面具表示嘴甜心毒，两面三刀，专门挑拨离间者。",
+        imageFile: "black-white.png"
+      },
+      {
+        name: "黑面具",
+        desc: "黑色面具表示凶恶，为凶奴相。",
+        imageFile: "black.png"
+      }
+    ];
+
+    // 获取元素
+    const overlay = document.getElementById('detailOverlay');
+    const detailImage = document.getElementById('detailImage');
+    const detailName = document.getElementById('detailName');
+    const detailDesc = document.getElementById('detailDesc');
+    const closeBtn = document.getElementById('closeOverlayBtn');
+    const cardGrid = document.getElementById('cardGrid');
+
+    // 基础图片路径 (所有图片存放在 images/ 文件夹下)
+    const IMAGE_BASE = 'images/';
+
+    // 打开详情面板
+    function openDetail(index) {
+      if (index < 0 || index >= masksData.length) return;
+      const mask = masksData[index];
+
+      // 设置图片：左大图直接使用对应图片文件（如果图片命名一致）
+      // 为了确保能看到图，图片路径必须正确。如果图片暂缺，显示优雅的底色，但不会有备注文字
+      detailImage.src = IMAGE_BASE + mask.imageFile;
+      // 图片加载失败时的占位 (不显示任何文字备注)
+      detailImage.onerror = function() {
+        // 保持空白底色，不添加额外文字提示（因为不要备注）
+        this.style.backgroundColor = '#bcb0a0';
+        this.alt = '';   // 完全无文字
+      };
+      detailImage.onload = function() {
+        this.style.backgroundColor = 'transparent';
+      };
+
+      detailName.textContent = mask.name;
+      detailDesc.textContent = mask.desc;
+
+      // 显示弹窗
+      overlay.style.display = 'flex';
+    }
+
+    // 关闭弹窗
+    function closeDetail() {
+      overlay.style.display = 'none';
+      // 可选重置图片src，避免闪烁（但不重置也没关系）
+    }
+
+    // 为所有卡牌添加点击事件 (使用事件代理更简洁)
+    cardGrid.addEventListener('click', (e) => {
+      // 找到被点击的卡牌 (可能点击在图片或文字上，向上找带有data-index的父级)
+      const card = e.target.closest('.mask-card');
+      if (!card) return;
+
+      const index = card.getAttribute('data-index');
+      if (index !== null) {
+        openDetail(parseInt(index, 10));
+      }
+    });
+
+    // 点击关闭按钮或 overlay 背景 (点背景关掉)
+    closeBtn.addEventListener('click', closeDetail);
+
+    // 点击overlay背景(灰色区域)也关闭，但需要避免点击内部面板时关闭
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {   // 只有点击背景层才关闭
+        closeDetail();
+      }
+    });
+
+    // 按ESC键关闭弹窗（提升体验）
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.style.display === 'flex') {
+        closeDetail();
+      }
+    });
+
+    // 没有任何额外备注。图片替换说明：
+    // 将您的面具图片放入 "images" 文件夹，并按以下命名:
+    // blue.jpg, green.jpg, red.jpg, white.jpg, yellow.jpg, black-white.jpg, black.jpg
+    // 如果文件名不同，修改 masksData 里面对应的 imageFile 名称即可。
+  })();
+</script>
+
+<!-- 完全没有可见的备注，亦无emoji -->
+
+</body></html>
